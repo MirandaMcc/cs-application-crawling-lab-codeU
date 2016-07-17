@@ -24,14 +24,16 @@ public class JedisMaker {
 	 */
 	public static Jedis make() throws IOException {
 
-
+		//C:\Sites\cs-application-crawling-lab-codeU\javacs-lab11\src\resources\redis_url.txt
 		// assemble the directory name
 		String slash = File.separator;
 		String filename = "resources" + slash + "redis_url.txt";
 		URL fileURL = JedisMaker.class.getClassLoader().getResource(filename);
-                String filepath = URLDecoder.decode(fileURL.getFile(), "UTF-8");
+		System.out.println(filename);
+		System.out.println(fileURL.toString());
+        String filepath = URLDecoder.decode(fileURL.getFile(), "UTF-8");
 
-	    	StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder();
 		BufferedReader br;
 		try {
                     br = new BufferedReader(new FileReader(filepath));

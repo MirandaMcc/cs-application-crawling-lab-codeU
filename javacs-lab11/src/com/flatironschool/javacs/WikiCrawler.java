@@ -55,7 +55,28 @@ public class WikiCrawler {
 	 */
 	public String crawl(boolean testing) throws IOException {
         // FILL THIS IN!
-		return null;
+		return testing ? crawlTesting():crawlReal();
+	}
+
+	public String crawlTesting(){
+		//remove url in FIFO
+		String url = queue.remove();
+
+		//read page contents
+		Jedis jedis = JedisMaker.make();
+		JedisIndex index = new JedisIndex(jedis);
+		WikiFetcher fetcher = new WikiFetcher();
+		Elements paragraphs = fetcher.readWikipedia(url);
+		index.indexPage(url, paragraphs);
+	
+		//add internal links to queue
+		queueInternalLinks(paragraphs);
+
+		return url;
+	}
+
+	public String crawlReal(){
+		return "";
 	}
 	
 	/**
