@@ -63,10 +63,12 @@ public class WikiCrawler {
 		String url = queue.remove();
 
 		//read page contents
-		Jedis jedis = JedisMaker.make();
-		JedisIndex index = new JedisIndex(jedis);
 		WikiFetcher fetcher = new WikiFetcher();
 		Elements paragraphs = fetcher.readWikipedia(url);
+		
+		//index page
+		Jedis jedis = JedisMaker.make();
+		JedisIndex index = new JedisIndex(jedis);
 		index.indexPage(url, paragraphs);
 	
 		//add internal links to queue
@@ -76,7 +78,28 @@ public class WikiCrawler {
 	}
 
 	public String crawlReal(){
-		return "";
+
+		//remove url in FIFO
+		String url = queue.remove();
+
+		//check if url already indexed 
+		Jedis jedis = JedisMaker.make();
+		JedisIndex index = new JedisIndex(jedis);
+		boolean indexed = index.isIndexed(url);
+
+		//if not indexed, read contents, else do nothing
+		if(!indexed)
+		{	WikiFetcher fetcher = new WikiFetcher();
+			Elements paragraphs = fetcher.fetchWikipedia(url);
+		}
+
+		//index page
+		index.indexPage(url, paragraphs);
+	
+		//add internal links to queue
+		queueInternalLinks(paragraphs);
+
+		return url;
 	}
 	
 	/**
@@ -87,6 +110,11 @@ public class WikiCrawler {
 	// NOTE: absence of access level modifier means package-level
 	void queueInternalLinks(Elements paragraphs) {
         // FILL THIS IN!
+		Elements links = paragraphs.select("a[href]");
+		for(Element e : links ){
+			String link = e.attr("abs:href")
+			queue.add(link);
+		}
 	}
 
 	public static void main(String[] args) throws IOException {
