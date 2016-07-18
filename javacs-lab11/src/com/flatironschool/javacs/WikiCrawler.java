@@ -58,7 +58,8 @@ public class WikiCrawler {
 		return testing ? crawlTesting():crawlReal();
 	}
 
-	public String crawlTesting(){
+	public String crawlTesting() throws IOException{
+		System.out.println("testing");
 		//remove url in FIFO
 		String url = queue.remove();
 
@@ -77,8 +78,8 @@ public class WikiCrawler {
 		return url;
 	}
 
-	public String crawlReal(){
-
+	public String crawlReal() throws IOException{
+		System.out.println("real");
 		//remove url in FIFO
 		String url = queue.remove();
 
@@ -88,9 +89,10 @@ public class WikiCrawler {
 		boolean indexed = index.isIndexed(url);
 
 		//if not indexed, read contents, else do nothing
+		Elements paragraphs = new Elements();
 		if(!indexed)
 		{	WikiFetcher fetcher = new WikiFetcher();
-			Elements paragraphs = fetcher.fetchWikipedia(url);
+			paragraphs = fetcher.fetchWikipedia(url);
 		}
 
 		//index page
@@ -112,9 +114,12 @@ public class WikiCrawler {
         // FILL THIS IN!
 		Elements links = paragraphs.select("a[href]");
 		for(Element e : links ){
-			String link = e.attr("abs:href")
+			String link = e.attr("abs:href");
+			//System.out.println(link);
+			//if (link.contains("wikipedia"))
 			queue.add(link);
 		}
+		System.out.println(queue.toString());
 	}
 
 	public static void main(String[] args) throws IOException {
