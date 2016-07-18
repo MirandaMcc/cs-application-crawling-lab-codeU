@@ -45,7 +45,7 @@ public class WikiCrawler {
 	public int queueSize() {
 		return queue.size();	
 	}
-
+	
 	/**
 	 * Gets a URL from the queue and indexes it.
 	 * @param b 
@@ -55,10 +55,14 @@ public class WikiCrawler {
 	 */
 	public String crawl(boolean testing) throws IOException {
         // FILL THIS IN!
+		if (queue.isEmpty())
+			return null; 
+
 		return testing ? crawlTesting():crawlReal();
 	}
 
 	public String crawlTesting() throws IOException{
+		
 		System.out.println("testing");
 		//remove url in FIFO
 		String url = queue.remove();
@@ -94,6 +98,8 @@ public class WikiCrawler {
 		{	WikiFetcher fetcher = new WikiFetcher();
 			paragraphs = fetcher.fetchWikipedia(url);
 		}
+		else	
+			return null;
 
 		//index page
 		index.indexPage(url, paragraphs);
@@ -103,7 +109,7 @@ public class WikiCrawler {
 
 		return url;
 	}
-	
+
 	/**
 	 * Parses paragraphs and adds internal links to the queue.
 	 * 
@@ -112,14 +118,14 @@ public class WikiCrawler {
 	// NOTE: absence of access level modifier means package-level
 	void queueInternalLinks(Elements paragraphs) {
         // FILL THIS IN!
-		Elements links = paragraphs.select("a[href]");
-		for(Element e : links ){
-			String link = e.attr("abs:href");
-			//System.out.println(link);
-			//if (link.contains("wikipedia"))
-			queue.add(link);
+		for(Element paragraph : paragraphs){
+			Elements links = paragraph.select("a[href]");
+			for(Element link : links )
+			{	String url = link.attr("href");
+				if(url.startsWith("/wiki"))
+					queue.add("https://en.wikipedia.org"+url);
+			}
 		}
-		System.out.println(queue.toString());
 	}
 
 	public static void main(String[] args) throws IOException {
